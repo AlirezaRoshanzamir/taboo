@@ -11,8 +11,9 @@
   --space: 1rem;
   --max-width: 720px;
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  /* Tahoma / Segoe UI render Persian well on Windows; keep generic fallbacks. */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Tahoma, Roboto, Helvetica,
+    Arial, "Vazirmatn", sans-serif;
 
   color-scheme: dark;
 }

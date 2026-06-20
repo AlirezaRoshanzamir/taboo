@@ -4,12 +4,12 @@
   align-items: center;
   min-height: 100vh;
   padding: 2.5rem var(--space);
-  text-align: center;
 }
 
 .app__header {
   max-width: var(--max-width);
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .app__badge {
@@ -26,7 +26,7 @@
 
 .app__title {
   margin: 0;
-  font-size: clamp(2.75rem, 8vw, 4.5rem);
+  font-size: clamp(2.5rem, 7vw, 4rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
@@ -40,32 +40,329 @@
 
 .app__main {
   width: 100%;
-  max-width: var(--max-width);
+  max-width: 900px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.card {
-  padding: 2rem;
+/* ---- Panels ---- */
+.panel {
+  padding: 1.75rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
-.card__heading {
-  margin: 0 0 0.5rem;
-  font-size: 1.5rem;
+.panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
-.card__text {
+.panel__heading {
+  margin: 0 0 1.25rem;
+  font-size: 1.35rem;
+}
+
+.panel__head .panel__heading {
   margin: 0;
+}
+
+.panel__count {
+  display: inline-block;
+  min-width: 1.5rem;
+  padding: 0.05rem 0.5rem;
+  margin-left: 0.35rem;
+  font-size: 0.85rem;
   color: var(--color-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+/* ---- Form ---- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.form__input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form__input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.form__taboos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form__taboo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form__icon-btn {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.form__icon-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ---- Swatches ---- */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.swatch:hover {
+  border-color: var(--swatch);
+}
+
+.swatch--active {
+  border-color: var(--swatch);
+  background: color-mix(in srgb, var(--swatch) 18%, transparent);
+}
+
+.swatch__dot {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--swatch);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  padding: 0.65rem 1.1rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  align-self: flex-start;
+  color: #fff;
+  background: var(--color-accent);
+}
+
+.btn--primary:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.btn--ghost {
+  align-self: flex-start;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border-color: var(--color-border);
+}
+
+.btn--ghost:not(:disabled):hover {
+  border-color: var(--color-accent);
+}
+
+.btn--danger {
+  color: #fff;
+  background: transparent;
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}
+
+.btn--danger:not(:disabled):hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+/* ---- Toolbar ---- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ---- Card groups & list ---- */
+.empty {
+  margin: 0;
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.card-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.card-group__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+}
+
+.card-group__dot {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+}
+
+.card-group__count {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.85rem;
+}
+
+.taboo-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1rem 1rem 1.1rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.taboo-card__bar {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+  background: var(--accent);
+}
+
+.taboo-card__delete {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--color-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.taboo-card:hover .taboo-card__delete,
+.taboo-card__delete:focus-visible {
+  opacity: 1;
+}
+
+.taboo-card__delete:hover {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.taboo-card__guess {
+  margin: 0.6rem 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.taboo-card__words {
+  margin: 0;
+  padding: 0.75rem 0 0;
+  list-style: none;
+  border-top: 1px dashed var(--color-border);
+}
+
+.taboo-card__word {
+  padding: 0.15rem 0;
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  word-break: break-word;
+}
+
+.taboo-card__word--empty {
+  font-style: italic;
+  opacity: 0.7;
 }
 
 .app__footer {
   margin-top: 2.5rem;
   font-size: 0.85rem;
   color: var(--color-muted);
+  text-align: center;
 }
 
 .app__footer p {
