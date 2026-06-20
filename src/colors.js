@@ -1,10 +1,10 @@
 // Card colors. The `value` is the display/swatch color; `key` is stored on cards
 // and used for grouping so players can finish one color before the next.
 export const CARD_COLORS = [
-  { key: 'orange', label: 'Orange', value: '#f97316' },
-  { key: 'blue', label: 'Blue', value: '#3b82f6' },
-  { key: 'green', label: 'Green', value: '#22c55e' },
-  { key: 'yellow', label: 'Yellow', value: '#eab308' },
+  { key: 'orange', label: 'Orange', value: '#e38136' },
+  { key: 'green', label: 'Green', value: '#7fc42b' },
+  { key: 'yellow', label: 'Yellow', value: '#ebb526' },
+  { key: 'blue', label: 'Blue', value: '#3454d9' },
   { key: 'red', label: 'Red', value: '#ef4444' },
   { key: 'purple', label: 'Purple', value: '#a855f7' },
   { key: 'pink', label: 'Pink', value: '#ec4899' },

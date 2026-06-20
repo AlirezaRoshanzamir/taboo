@@ -1,0 +1,326 @@
+@font-face {
+  font-family: 'CardsFont';
+  src: url('../assets/cards_font.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== Print panel controls (screen only) ===== */
+.print-panel__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.pp-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pp-group__title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.pp-controls,
+.pp-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.85rem;
+}
+
+.pp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pp-field > label,
+.pp-field__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.pp-input,
+.pp-select {
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.pp-input:disabled {
+  opacity: 0.5;
+}
+
+.pp-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.pp-summary {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.print-panel__preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.print-panel__preview-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.pp-scale {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.pp-scale button {
+  padding: 0.3rem 0.6rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pp-scale button.is-active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* ===== Pages ===== */
+.print-pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.pp-wrap {
+  width: calc(var(--pw) * 1mm * var(--s));
+  height: calc(var(--ph) * 1mm * var(--s));
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.print-page {
+  box-sizing: border-box;
+  width: calc(var(--pw) * 1mm);
+  height: calc(var(--ph) * 1mm);
+  background: #fff;
+  color: #111;
+  transform: scale(var(--s));
+  transform-origin: top left;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.print-page__grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), calc(var(--cw) * 1mm));
+  gap: calc(var(--gap) * 1mm);
+  padding: calc(var(--margin) * 1mm);
+  align-content: start;
+  justify-content: start;
+}
+
+/* Mirror columns so duplex (long-edge flip) backs line up with fronts. */
+.print-page--mirror .print-page__grid {
+  direction: rtl;
+}
+
+/* ===== A physical card: two stacked sections ===== */
+.pc {
+  box-sizing: border-box;
+  width: calc(var(--cw) * 1mm);
+  height: calc(var(--ch) * 1mm);
+  display: flex;
+  flex-direction: column;
+  border: 1px dashed #999;
+  overflow: hidden;
+  direction: ltr;
+  font-family: 'CardsFont', var(--font-sans);
+  /* Opacity of the faint Taboo logo watermark behind each section.
+     Tweak this value (0 = hidden, 1 = fully opaque). */
+  --logo-opacity: 0.08;
+}
+
+.pc__sec {
+  flex: 1 1 50%;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+/* White divider between the two sections. */
+.pc__sec:first-child {
+  border-bottom: 1mm solid #fff;
+}
+
+/* Bottom section is upside-down so you rotate the card to read it. */
+.pc__sec--flip {
+  transform: rotate(180deg);
+}
+
+.pc__sec-inner {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* The whole section (guess + taboos) is filled with the card color. */
+  background: var(--c);
+  color: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* Faint, stretched Taboo logo watermark behind the section content. */
+.pc__sec-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url('../assets/taboo_logo_white.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: var(--logo-opacity);
+  pointer-events: none;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pc__guess {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  text-align: center;
+  font-weight: 800;
+  line-height: 1.1;
+  padding: calc(var(--ch) * 1mm * 0.028) 2mm;
+  font-size: calc(var(--gfs) * 1mm);
+  word-break: break-word;
+  /* White divider between the guess word and the taboo words. */
+  border-bottom: 0.5mm solid #fff;
+}
+
+.pc__taboos {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  margin: 0;
+  padding: 2mm 2.5mm;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6mm;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.pc__taboo {
+  font-size: calc(var(--tfs) * 1mm);
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-word;
+  color: #fff;
+}
+
+.pc__sec-inner--empty {
+  flex: 1;
+  background: repeating-linear-gradient(
+    45deg,
+    #fbfbfb,
+    #fbfbfb 4mm,
+    #f1f1f1 4mm,
+    #f1f1f1 8mm
+  );
+}
+
+/* ===== Print media ===== */
+@media print {
+  .app {
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .app__header,
+  .app__footer {
+    display: none !important;
+  }
+
+  .app__main {
+    max-width: none !important;
+    gap: 0 !important;
+    display: block !important;
+  }
+
+  .panel:not(.print-panel) {
+    display: none !important;
+  }
+
+  .print-panel {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+  }
+
+  .print-panel__controls,
+  .print-panel__preview-head {
+    display: none !important;
+  }
+
+  .print-pages {
+    display: block !important;
+    gap: 0 !important;
+  }
+
+  .pp-wrap {
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  .print-page {
+    transform: none !important;
+    page-break-after: always;
+    break-after: page;
+    break-inside: avoid;
+  }
+
+  .print-pages > .pp-wrap:last-child .print-page {
+    page-break-after: auto;
+    break-after: auto;
+  }
+}

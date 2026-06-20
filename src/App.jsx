@@ -4,6 +4,7 @@ import { loadCards, saveCards, makeId } from './storage.js'
 import CardForm from './components/CardForm.jsx'
 import CardList from './components/CardList.jsx'
 import Toolbar from './components/Toolbar.jsx'
+import PrintPanel from './components/PrintPanel.jsx'
 
 export default function App() {
   const [cards, setCards] = useState(loadCards)
@@ -69,6 +70,8 @@ export default function App() {
           </div>
           <CardList cards={cards} onDelete={deleteCard} />
         </section>
+
+        <PrintPanel cards={cards} />
       </main>
 
       <footer className="app__footer">
