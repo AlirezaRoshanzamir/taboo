@@ -36,6 +36,7 @@ export default function Toolbar({ cards, onImport, onClear }) {
           id: typeof card.id === 'string' ? card.id : makeId(),
           guessWord: card.guessWord,
           tabooWords: card.tabooWords,
+          examples: Array.isArray(card.examples) ? card.examples : [],
           color: card.color,
         }))
         onImport(valid)

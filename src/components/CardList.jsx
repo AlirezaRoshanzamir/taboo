@@ -83,6 +83,10 @@ export default function CardList({ cards, editingId, onEdit, onDelete }) {
                     ))
                   )}
                 </ul>
+                <p className="taboo-card__examples">
+                  {card.examples?.length || 0}{' '}
+                  {(card.examples?.length || 0) === 1 ? 'example' : 'examples'}
+                </p>
               </article>
             ))}
           </div>

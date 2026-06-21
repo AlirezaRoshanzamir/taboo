@@ -170,6 +170,44 @@
   border-color: var(--color-accent);
 }
 
+.form__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.form__hint code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  padding: 0.05rem 0.3rem;
+  background: color-mix(in srgb, var(--color-border) 25%, transparent);
+  border-radius: 6px;
+}
+
+.form__examples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form__example {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.form__textarea {
+  resize: vertical;
+  min-height: 2.6rem;
+  line-height: 1.4;
+}
+
+.form__example-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 /* ---- Swatches ---- */
 .swatches {
   display: flex;
@@ -388,6 +426,16 @@
 .taboo-card__word--empty {
   font-style: italic;
   opacity: 0.7;
+}
+
+.taboo-card__examples {
+  margin: 0.6rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--color-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-muted);
 }
 
 .app__footer {

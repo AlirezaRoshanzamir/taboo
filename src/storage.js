@@ -25,6 +25,8 @@ export function isValidCard(card) {
     typeof card === 'object' &&
     typeof card.guessWord === 'string' &&
     Array.isArray(card.tabooWords) &&
+    // examples are optional, but must be an array of strings when present.
+    (card.examples === undefined || Array.isArray(card.examples)) &&
     typeof card.color === 'string'
   )
 }
