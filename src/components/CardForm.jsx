@@ -1,12 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CARD_COLORS, DEFAULT_COLOR } from '../colors.js'
 
 const EMPTY_TABOOS = ['', '', '', '', '']
 
-export default function CardForm({ onAdd }) {
+export default function CardForm({ editingCard, onAdd, onUpdate, onCancelEdit }) {
+  const isEditing = Boolean(editingCard)
+
   const [guessWord, setGuessWord] = useState('')
   const [tabooWords, setTabooWords] = useState(EMPTY_TABOOS)
   const [color, setColor] = useState(DEFAULT_COLOR)
+
+  // Sync the form to whatever we're editing. When editing is cleared, reset to
+  // a blank "add" form.
+  useEffect(() => {
+    if (editingCard) {
+      setGuessWord(editingCard.guessWord)
+      setTabooWords(
+        editingCard.tabooWords.length > 0 ? editingCard.tabooWords : EMPTY_TABOOS,
+      )
+      setColor(editingCard.color)
+    } else {
+      setGuessWord('')
+      setTabooWords(EMPTY_TABOOS)
+    }
+  }, [editingCard])
 
   function updateTaboo(index, value) {
     setTabooWords((prev) => prev.map((w, i) => (i === index ? value : w)))
@@ -26,16 +43,36 @@ export default function CardForm({ onAdd }) {
     const cleanTaboos = tabooWords.map((w) => w.trim()).filter(Boolean)
     if (!trimmedGuess) return
 
-    onAdd({ guessWord: trimmedGuess, tabooWords: cleanTaboos, color })
+    const payload = { guessWord: trimmedGuess, tabooWords: cleanTaboos, color }
 
-    // Reset for the next card, but keep the chosen color so a batch of one
-    // color can be entered quickly.
-    setGuessWord('')
-    setTabooWords(EMPTY_TABOOS)
+    if (isEditing) {
+      onUpdate({ id: editingCard.id, ...payload })
+    } else {
+      onAdd(payload)
+      // Reset for the next card, but keep the chosen color so a batch of one
+      // color can be entered quickly.
+      setGuessWord('')
+      setTabooWords(EMPTY_TABOOS)
+    }
   }
 
   return (
     <form className="form" onSubmit={handleSubmit}>
+      <div className="form__row">
+        <label className="form__label" htmlFor="card-id">
+          Card ID
+        </label>
+        <input
+          id="card-id"
+          className="form__input form__input--frozen"
+          type="text"
+          value={isEditing ? editingCard.id : ''}
+          placeholder="Assigned automatically on add"
+          readOnly
+          tabIndex={-1}
+        />
+      </div>
+
       <div className="form__row">
         <label className="form__label" htmlFor="guess">
           Guess word
@@ -107,9 +144,16 @@ export default function CardForm({ onAdd }) {
         </div>
       </div>
 
-      <button type="submit" className="btn btn--primary" disabled={!guessWord.trim()}>
-        Add card
-      </button>
+      <div className="form__actions">
+        <button type="submit" className="btn btn--primary" disabled={!guessWord.trim()}>
+          {isEditing ? 'Save changes' : 'Add card'}
+        </button>
+        {isEditing && (
+          <button type="button" className="btn btn--ghost" onClick={onCancelEdit}>
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   )
 }

@@ -124,6 +124,21 @@
   box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
+.form__input--frozen {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-border) 25%, transparent);
+  border-style: dashed;
+  cursor: not-allowed;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+}
+
+.form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .form__taboos {
   display: flex;
   flex-direction: column;
@@ -305,31 +320,48 @@
   background: var(--accent);
 }
 
-.taboo-card__delete {
+.taboo-card__actions {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.taboo-card:hover .taboo-card__actions,
+.taboo-card:focus-within .taboo-card__actions,
+.taboo-card--editing .taboo-card__actions {
+  opacity: 1;
+}
+
+.taboo-card__action {
   width: 1.6rem;
   height: 1.6rem;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   line-height: 1;
   color: var(--color-muted);
   background: transparent;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.taboo-card:hover .taboo-card__delete,
-.taboo-card__delete:focus-visible {
-  opacity: 1;
+.taboo-card__action:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
 
-.taboo-card__delete:hover {
+.taboo-card__action--delete:hover {
   color: #fca5a5;
   background: rgba(239, 68, 68, 0.15);
+}
+
+.taboo-card--editing {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .taboo-card__guess {

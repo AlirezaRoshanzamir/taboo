@@ -8,18 +8,29 @@ import PrintPanel from './components/PrintPanel.jsx'
 
 export default function App() {
   const [cards, setCards] = useState(loadCards)
+  const [editingId, setEditingId] = useState(null)
 
   // Persist on every change so a refresh never loses work.
   useEffect(() => {
     saveCards(cards)
   }, [cards])
 
+  const editingCard = editingId
+    ? cards.find((c) => c.id === editingId) ?? null
+    : null
+
   function addCard(card) {
     setCards((prev) => [...prev, { id: makeId(), ...card }])
   }
 
+  function updateCard(card) {
+    setCards((prev) => prev.map((c) => (c.id === card.id ? card : c)))
+    setEditingId(null)
+  }
+
   function deleteCard(id) {
     setCards((prev) => prev.filter((c) => c.id !== id))
+    if (id === editingId) setEditingId(null)
   }
 
   function importCards(incoming) {
@@ -57,8 +68,15 @@ export default function App() {
 
       <main className="app__main">
         <section className="panel">
-          <h2 className="panel__heading">Add a card</h2>
-          <CardForm onAdd={addCard} />
+          <h2 className="panel__heading">
+            {editingCard ? 'Edit card' : 'Add a card'}
+          </h2>
+          <CardForm
+            editingCard={editingCard}
+            onAdd={addCard}
+            onUpdate={updateCard}
+            onCancelEdit={() => setEditingId(null)}
+          />
         </section>
 
         <section className="panel">
@@ -68,7 +86,12 @@ export default function App() {
             </h2>
             <Toolbar cards={cards} onImport={importCards} onClear={clearAll} />
           </div>
-          <CardList cards={cards} onDelete={deleteCard} />
+          <CardList
+            cards={cards}
+            editingId={editingId}
+            onEdit={(card) => setEditingId(card.id)}
+            onDelete={deleteCard}
+          />
         </section>
 
         <PrintPanel cards={cards} />

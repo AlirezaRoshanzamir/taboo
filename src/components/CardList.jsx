@@ -1,6 +1,6 @@
 import { CARD_COLORS, colorLabel, colorValue } from '../colors.js'
 
-export default function CardList({ cards, onDelete }) {
+export default function CardList({ cards, editingId, onEdit, onDelete }) {
   if (cards.length === 0) {
     return (
       <p className="empty">
@@ -39,20 +39,34 @@ export default function CardList({ cards, onDelete }) {
           <div className="card-grid">
             {group.cards.map((card) => (
               <article
-                className="taboo-card"
+                className={
+                  'taboo-card' +
+                  (card.id === editingId ? ' taboo-card--editing' : '')
+                }
                 key={card.id}
                 style={{ '--accent': colorValue(card.color) }}
               >
                 <div className="taboo-card__bar" />
-                <button
-                  type="button"
-                  className="taboo-card__delete"
-                  onClick={() => onDelete(card.id)}
-                  aria-label="Delete card"
-                  title="Delete card"
-                >
-                  ×
-                </button>
+                <div className="taboo-card__actions">
+                  <button
+                    type="button"
+                    className="taboo-card__action"
+                    onClick={() => onEdit(card)}
+                    aria-label="Edit card"
+                    title="Edit card"
+                  >
+                    ✎
+                  </button>
+                  <button
+                    type="button"
+                    className="taboo-card__action taboo-card__action--delete"
+                    onClick={() => onDelete(card.id)}
+                    aria-label="Delete card"
+                    title="Delete card"
+                  >
+                    ×
+                  </button>
+                </div>
                 <h4 className="taboo-card__guess" dir="auto">
                   {card.guessWord}
                 </h4>
