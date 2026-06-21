@@ -62,8 +62,10 @@ function tabooFontSize(cardH, count) {
   return Math.max(2, Math.min(baseTfs, Number(fit.toFixed(2))))
 }
 
-function Section({ card, cardH }) {
+function Section({ card, cardH, maxTaboos }) {
   if (!card) return <div className="pc__sec-inner pc__sec-inner--empty" />
+  const words =
+    maxTaboos > 0 ? card.tabooWords.slice(0, maxTaboos) : card.tabooWords
   return (
     <div className="pc__sec-inner">
       <div className="pc__guess" dir="auto">
@@ -71,9 +73,9 @@ function Section({ card, cardH }) {
       </div>
       <ul
         className="pc__taboos"
-        style={{ '--tfs': tabooFontSize(cardH, card.tabooWords.length) }}
+        style={{ '--tfs': tabooFontSize(cardH, words.length) }}
       >
-        {card.tabooWords.map((w, i) => (
+        {words.map((w, i) => (
           <li className="pc__taboo" dir="auto" key={i}>
             {w}
           </li>
@@ -83,14 +85,14 @@ function Section({ card, cardH }) {
   )
 }
 
-function PrintCard({ topCard, bottomCard, topColor, bottomColor, cardH }) {
+function PrintCard({ topCard, bottomCard, topColor, bottomColor, cardH, maxTaboos }) {
   return (
     <div className="pc">
       <div className="pc__sec" style={{ '--c': colorValue(topColor) }}>
-        <Section card={topCard} cardH={cardH} />
+        <Section card={topCard} cardH={cardH} maxTaboos={maxTaboos} />
       </div>
       <div className="pc__sec pc__sec--flip" style={{ '--c': colorValue(bottomColor) }}>
-        <Section card={bottomCard} cardH={cardH} />
+        <Section card={bottomCard} cardH={cardH} maxTaboos={maxTaboos} />
       </div>
     </div>
   )
@@ -105,6 +107,7 @@ export default function PrintPanel({ cards }) {
   const [cardH, setCardH] = useState(96)
   const [gap, setGap] = useState(0)
   const [margin, setMargin] = useState(0)
+  const [maxTaboos, setMaxTaboos] = useState(0)
   const [mirrorBack, setMirrorBack] = useState(true)
   const [roles, setRoles] = useState(() => initialRoles(cards))
   const [scale, setScale] = useState(0.6)
@@ -292,6 +295,17 @@ export default function PrintPanel({ cards }) {
                 onChange={(e) => setGap(Number(e.target.value))}
               />
             </div>
+            <div className="pp-field">
+              <label htmlFor="pp-maxtaboos">Max taboo words (0 = all)</label>
+              <input
+                id="pp-maxtaboos"
+                className="pp-input"
+                type="number"
+                min={0}
+                value={maxTaboos}
+                onChange={(e) => setMaxTaboos(Math.max(0, Number(e.target.value)))}
+              />
+            </div>
           </div>
         </div>
 
@@ -379,6 +393,7 @@ export default function PrintPanel({ cards }) {
                       topColor={roles.s1t}
                       bottomColor={roles.s1b}
                       cardH={cardH}
+                      maxTaboos={maxTaboos}
                     />
                   ) : (
                     <PrintCard
@@ -388,6 +403,7 @@ export default function PrintPanel({ cards }) {
                       topColor={roles.s2t}
                       bottomColor={roles.s2b}
                       cardH={cardH}
+                      maxTaboos={maxTaboos}
                     />
                   ),
                 )}
