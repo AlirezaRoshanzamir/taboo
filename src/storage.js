@@ -1,4 +1,36 @@
 const STORAGE_KEY = 'taboo.cards.v1'
+const AI_KEY = 'taboo.ai.v1'
+
+// Defaults to OpenAI's endpoint, but the base URL is editable so a local
+// OpenAI-compatible server (LM Studio, Ollama, vLLM, …) can be used instead.
+export const DEFAULT_AI_SETTINGS = {
+  baseUrl: 'https://api.openai.com/v1',
+  apiKey: '',
+  model: 'gpt-4o-mini',
+  // USD price per 1M tokens (defaults are gpt-4o-mini's rates). Set to 0 for a
+  // free local model.
+  inputPrice: 0.15,
+  outputPrice: 0.6,
+}
+
+export function loadAiSettings() {
+  try {
+    const raw = localStorage.getItem(AI_KEY)
+    if (!raw) return { ...DEFAULT_AI_SETTINGS }
+    const parsed = JSON.parse(raw)
+    return { ...DEFAULT_AI_SETTINGS, ...parsed }
+  } catch {
+    return { ...DEFAULT_AI_SETTINGS }
+  }
+}
+
+export function saveAiSettings(settings) {
+  try {
+    localStorage.setItem(AI_KEY, JSON.stringify(settings))
+  } catch {
+    // Ignore quota / serialization errors — persistence is best-effort.
+  }
+}
 
 export function loadCards() {
   try {

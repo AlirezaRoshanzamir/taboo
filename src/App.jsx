@@ -1,19 +1,31 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { loadCards, saveCards, makeId } from './storage.js'
+import {
+  loadCards,
+  saveCards,
+  makeId,
+  loadAiSettings,
+  saveAiSettings,
+} from './storage.js'
 import CardForm from './components/CardForm.jsx'
 import CardList from './components/CardList.jsx'
 import Toolbar from './components/Toolbar.jsx'
 import PrintPanel from './components/PrintPanel.jsx'
+import AiSettingsPanel from './components/AiSettingsPanel.jsx'
 
 export default function App() {
   const [cards, setCards] = useState(loadCards)
   const [editingId, setEditingId] = useState(null)
+  const [aiSettings, setAiSettings] = useState(loadAiSettings)
 
   // Persist on every change so a refresh never loses work.
   useEffect(() => {
     saveCards(cards)
   }, [cards])
+
+  useEffect(() => {
+    saveAiSettings(aiSettings)
+  }, [aiSettings])
 
   const editingCard = editingId
     ? cards.find((c) => c.id === editingId) ?? null
@@ -76,6 +88,7 @@ export default function App() {
             onAdd={addCard}
             onUpdate={updateCard}
             onCancelEdit={() => setEditingId(null)}
+            aiSettings={aiSettings}
           />
         </section>
 
@@ -95,6 +108,8 @@ export default function App() {
         </section>
 
         <PrintPanel cards={cards} />
+
+        <AiSettingsPanel settings={aiSettings} onChange={setAiSettings} />
       </main>
 
       <footer className="app__footer">

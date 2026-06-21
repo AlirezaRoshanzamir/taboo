@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CARD_COLORS, DEFAULT_COLOR } from '../colors.js'
+import { generateCardContent } from '../ai.js'
 
 const EMPTY_TABOOS = ['', '', '', '', '']
 const EMPTY_EXAMPLES = ['']
@@ -10,13 +11,48 @@ function extractMarkedWords(text) {
   return Array.from(matches, (m) => m[1].trim()).filter(Boolean)
 }
 
-export default function CardForm({ editingCard, onAdd, onUpdate, onCancelEdit }) {
+export default function CardForm({
+  editingCard,
+  onAdd,
+  onUpdate,
+  onCancelEdit,
+  aiSettings,
+}) {
   const isEditing = Boolean(editingCard)
 
   const [guessWord, setGuessWord] = useState('')
   const [tabooWords, setTabooWords] = useState(EMPTY_TABOOS)
   const [examples, setExamples] = useState(EMPTY_EXAMPLES)
   const [color, setColor] = useState(DEFAULT_COLOR)
+  const [aiBusy, setAiBusy] = useState(false)
+  const [aiUsage, setAiUsage] = useState(null)
+
+  // The magic button only appears once there's a word to work from and the AI
+  // endpoint/key/model have all been filled in.
+  const aiReady =
+    Boolean(guessWord.trim()) &&
+    Boolean(aiSettings?.baseUrl?.trim()) &&
+    Boolean(aiSettings?.apiKey?.trim()) &&
+    Boolean(aiSettings?.model?.trim())
+
+  async function generateWithAi() {
+    if (!aiReady || aiBusy) return
+    setAiBusy(true)
+    try {
+      const {
+        examples: aiExamples,
+        tabooWords: aiTaboos,
+        usage,
+      } = await generateCardContent(guessWord.trim(), aiSettings)
+      setExamples(aiExamples.length > 0 ? aiExamples : EMPTY_EXAMPLES)
+      setTabooWords(aiTaboos.length > 0 ? aiTaboos : EMPTY_TABOOS)
+      setAiUsage(usage)
+    } catch (err) {
+      alert(`Could not generate card content.\n\n${err.message}`)
+    } finally {
+      setAiBusy(false)
+    }
+  }
 
   // Sync the form to whatever we're editing. When editing is cleared, reset to
   // a blank "add" form.
@@ -130,16 +166,38 @@ export default function CardForm({ editingCard, onAdd, onUpdate, onCancelEdit })
         <label className="form__label" htmlFor="guess">
           Guess word
         </label>
-        <input
-          id="guess"
-          className="form__input"
-          type="text"
-          dir="auto"
-          value={guessWord}
-          onChange={(e) => setGuessWord(e.target.value)}
-          placeholder="The word to guess"
-          autoComplete="off"
-        />
+        <div className="form__guess">
+          <input
+            id="guess"
+            className="form__input"
+            type="text"
+            dir="auto"
+            value={guessWord}
+            onChange={(e) => setGuessWord(e.target.value)}
+            placeholder="The word to guess"
+            autoComplete="off"
+          />
+          {aiReady && (
+            <button
+              type="button"
+              className="form__magic-btn"
+              onClick={generateWithAi}
+              disabled={aiBusy}
+              aria-label="Generate examples and taboo words with AI"
+              title="Generate examples and taboo words with AI"
+            >
+              {aiBusy ? '…' : '✨'}
+            </button>
+          )}
+        </div>
+        {aiUsage && (
+          <p className="form__hint form__ai-cost">
+            ✨ Last generation: ${aiUsage.cost.toFixed(4)} ·{' '}
+            {aiUsage.totalTokens.toLocaleString()} tokens (
+            {aiUsage.inputTokens.toLocaleString()} in /{' '}
+            {aiUsage.outputTokens.toLocaleString()} out)
+          </p>
+        )}
       </div>
 
       <div className="form__row">
