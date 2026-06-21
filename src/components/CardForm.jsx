@@ -163,6 +163,7 @@ export default function CardForm({ editingCard, onAdd, onUpdate, onCancelEdit })
                   onClick={() => removeTabooField(index)}
                   aria-label="Remove this taboo word"
                   title="Remove"
+                  tabIndex={-1}
                 >
                   ×
                 </button>
@@ -199,6 +200,7 @@ export default function CardForm({ editingCard, onAdd, onUpdate, onCancelEdit })
                   onClick={() => removeExampleField(index)}
                   aria-label="Remove this example"
                   title="Remove"
+                  tabIndex={-1}
                 >
                   ×
                 </button>
