@@ -4,9 +4,9 @@ const AI_KEY = 'taboo.ai.v1'
 export const DEFAULT_AI_SETTINGS = {
   baseUrl: 'https://api.openai.com/v1',
   apiKey: '',
-  model: 'gpt-4o-mini',
-  inputPrice: 0.15,
-  outputPrice: 0.6,
+  model: 'gpt-5.5',
+  inputPrice: 5,
+  outputPrice: 30,
 }
 
 export function loadAiSettings() {
