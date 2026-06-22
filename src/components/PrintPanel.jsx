@@ -55,14 +55,16 @@ function tabooFontSize(cardH, count) {
   const sectionH = cardH / 2
   // Space taken by the guess word block (text + padding + white divider).
   const guessBlock = gfs * 1.3 + cardH * 0.05 + 0.5
-  const taboosPadding = 4 // 2mm top + 2mm bottom
-  const available = Math.max(0, sectionH - guessBlock - taboosPadding)
+  const taboosPadding = 2 // 1mm top + 1mm bottom
+  // Each row adds ~0.8mm vertical padding plus a 0.2mm divider border.
+  const perRowChrome = 1.0
+  const available = Math.max(0, sectionH - guessBlock - taboosPadding - count * perRowChrome)
   const perLine = 1.45 // line-height + inter-line gap factor
   const fit = available / (count * perLine)
   return Math.max(2, Math.min(baseTfs, Number(fit.toFixed(2))))
 }
 
-function Section({ card, cardH, maxTaboos }) {
+function Section({ card, cardH, maxTaboos, maxSynonyms }) {
   if (!card) return <div className="pc__sec-inner pc__sec-inner--empty" />
   const words =
     maxTaboos > 0 ? card.tabooWords.slice(0, maxTaboos) : card.tabooWords
@@ -75,24 +77,54 @@ function Section({ card, cardH, maxTaboos }) {
         className="pc__taboos"
         style={{ '--tfs': tabooFontSize(cardH, words.length) }}
       >
-        {words.map((w, i) => (
-          <li className="pc__taboo" dir="auto" key={i}>
-            {w}
-          </li>
-        ))}
+        {words.map((w, i) => {
+          let syns = w
+            .split('|')
+            .map((s) => s.trim())
+            .filter(Boolean)
+          if (!syns.length) syns = [w]
+          if (maxSynonyms > 0) syns = syns.slice(0, maxSynonyms)
+          return (
+            <li className="pc__taboo" dir="auto" key={i}>
+              {syns.map((s, j) => (
+                <span className="pc__syn" key={j}>
+                  {s}
+                </span>
+              ))}
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
 }
 
-function PrintCard({ topCard, bottomCard, topColor, bottomColor, cardH, maxTaboos }) {
+function PrintCard({
+  topCard,
+  bottomCard,
+  topColor,
+  bottomColor,
+  cardH,
+  maxTaboos,
+  maxSynonyms,
+}) {
   return (
     <div className="pc">
       <div className="pc__sec" style={{ '--c': colorValue(topColor) }}>
-        <Section card={topCard} cardH={cardH} maxTaboos={maxTaboos} />
+        <Section
+          card={topCard}
+          cardH={cardH}
+          maxTaboos={maxTaboos}
+          maxSynonyms={maxSynonyms}
+        />
       </div>
       <div className="pc__sec pc__sec--flip" style={{ '--c': colorValue(bottomColor) }}>
-        <Section card={bottomCard} cardH={cardH} maxTaboos={maxTaboos} />
+        <Section
+          card={bottomCard}
+          cardH={cardH}
+          maxTaboos={maxTaboos}
+          maxSynonyms={maxSynonyms}
+        />
       </div>
     </div>
   )
@@ -108,6 +140,7 @@ export default function PrintPanel({ cards }) {
   const [gap, setGap] = useState(0)
   const [margin, setMargin] = useState(0)
   const [maxTaboos, setMaxTaboos] = useState(0)
+  const [maxSynonyms, setMaxSynonyms] = useState(0)
   const [mirrorBack, setMirrorBack] = useState(true)
   const [roles, setRoles] = useState(() => initialRoles(cards))
   const [scale, setScale] = useState(0.6)
@@ -306,6 +339,17 @@ export default function PrintPanel({ cards }) {
                 onChange={(e) => setMaxTaboos(Math.max(0, Number(e.target.value)))}
               />
             </div>
+            <div className="pp-field">
+              <label htmlFor="pp-maxsyn">Max similar words (0 = all)</label>
+              <input
+                id="pp-maxsyn"
+                className="pp-input"
+                type="number"
+                min={0}
+                value={maxSynonyms}
+                onChange={(e) => setMaxSynonyms(Math.max(0, Number(e.target.value)))}
+              />
+            </div>
           </div>
         </div>
 
@@ -394,6 +438,7 @@ export default function PrintPanel({ cards }) {
                       bottomColor={roles.s1b}
                       cardH={cardH}
                       maxTaboos={maxTaboos}
+                      maxSynonyms={maxSynonyms}
                     />
                   ) : (
                     <PrintCard
@@ -404,6 +449,7 @@ export default function PrintPanel({ cards }) {
                       bottomColor={roles.s2b}
                       cardH={cardH}
                       maxTaboos={maxTaboos}
+                      maxSynonyms={maxSynonyms}
                     />
                   ),
                 )}
