@@ -35,8 +35,11 @@ export default function Toolbar({ cards, onImport, onClear }) {
         const valid = parsed.filter(isValidCard).map((card) => ({
           id: typeof card.id === 'string' ? card.id : makeId(),
           guessWord: card.guessWord,
-          tabooWords: card.tabooWords,
-          examples: Array.isArray(card.examples) ? card.examples : [],
+          tabooWords: card.tabooWords.map((t) => ({
+            word: t.word,
+            difficulty: t.difficulty,
+          })),
+          examples: card.examples,
           color: card.color,
         }))
         onImport(valid)

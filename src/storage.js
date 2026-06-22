@@ -1,14 +1,10 @@
-const STORAGE_KEY = 'taboo.cards.v1'
+const STORAGE_KEY = 'taboo.cards.v3'
 const AI_KEY = 'taboo.ai.v1'
 
-// Defaults to OpenAI's endpoint, but the base URL is editable so a local
-// OpenAI-compatible server (LM Studio, Ollama, vLLM, …) can be used instead.
 export const DEFAULT_AI_SETTINGS = {
   baseUrl: 'https://api.openai.com/v1',
   apiKey: '',
   model: 'gpt-4o-mini',
-  // USD price per 1M tokens (defaults are gpt-4o-mini's rates). Set to 0 for a
-  // free local model.
   inputPrice: 0.15,
   outputPrice: 0.6,
 }
@@ -28,7 +24,7 @@ export function saveAiSettings(settings) {
   try {
     localStorage.setItem(AI_KEY, JSON.stringify(settings))
   } catch {
-    // Ignore quota / serialization errors — persistence is best-effort.
+    // best-effort
   }
 }
 
@@ -47,9 +43,11 @@ export function saveCards(cards) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cards))
   } catch {
-    // Ignore quota / serialization errors — persistence is best-effort.
+    // best-effort
   }
 }
+
+const VALID_DIFFICULTIES = new Set(['easy', 'normal', 'hard'])
 
 export function isValidCard(card) {
   return (
@@ -57,13 +55,17 @@ export function isValidCard(card) {
     typeof card === 'object' &&
     typeof card.guessWord === 'string' &&
     Array.isArray(card.tabooWords) &&
-    // examples are optional, but must be an array of strings when present.
-    (card.examples === undefined || Array.isArray(card.examples)) &&
+    card.tabooWords.every(
+      (t) =>
+        t &&
+        typeof t.word === 'string' &&
+        VALID_DIFFICULTIES.has(t.difficulty),
+    ) &&
+    Array.isArray(card.examples) &&
     typeof card.color === 'string'
   )
 }
 
-// Generate a unique-enough id without relying on Date.now/Math.random shape.
 export function makeId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID()

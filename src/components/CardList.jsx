@@ -9,13 +9,11 @@ export default function CardList({ cards, editingId, onEdit, onDelete }) {
     )
   }
 
-  // Group by color, in the canonical color order, so play can go orange-first.
   const groups = CARD_COLORS.map((c) => ({
     color: c.key,
     cards: cards.filter((card) => card.color === c.key),
   })).filter((g) => g.cards.length > 0)
 
-  // Include any colors not in the preset (e.g. from an uploaded file).
   const knownKeys = new Set(CARD_COLORS.map((c) => c.key))
   const extraKeys = [...new Set(cards.map((c) => c.color))].filter(
     (k) => !knownKeys.has(k),
@@ -70,19 +68,17 @@ export default function CardList({ cards, editingId, onEdit, onDelete }) {
                 <h4 className="taboo-card__guess" dir="auto">
                   {card.guessWord}
                 </h4>
-                <ul className="taboo-card__words">
-                  {card.tabooWords.length === 0 ? (
-                    <li className="taboo-card__word taboo-card__word--empty">
-                      (no taboo words)
-                    </li>
-                  ) : (
-                    card.tabooWords.map((word, i) => (
-                      <li className="taboo-card__word" dir="auto" key={i}>
-                        {word}
-                      </li>
-                    ))
-                  )}
-                </ul>
+                <div className="taboo-card__chips">
+                  {card.tabooWords.map((t, i) => (
+                    <span
+                      className={`taboo-card__chip taboo-card__chip--${t.difficulty}`}
+                      dir="auto"
+                      key={i}
+                    >
+                      {t.word}
+                    </span>
+                  ))}
+                </div>
                 <p className="taboo-card__examples">
                   {card.examples?.length || 0}{' '}
                   {(card.examples?.length || 0) === 1 ? 'example' : 'examples'}

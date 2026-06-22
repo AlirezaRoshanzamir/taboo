@@ -216,6 +216,38 @@
   print-color-adjust: exact;
 }
 
+.pc__badge {
+  position: absolute;
+  top: 1mm;
+  left: 1.5mm;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 1mm;
+  padding: 1mm 2.2mm;
+  font-size: calc(var(--gfs) * 1mm * 0.32);
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.25);
+  border: 0.2mm solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pc__badge-stars {
+  letter-spacing: 0;
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.pc__badge-stars-dim {
+  opacity: 0.35;
+}
+
 .pc__guess {
   position: relative;
   z-index: 1;
@@ -235,7 +267,7 @@
   z-index: 1;
   flex: 1;
   margin: 0;
-  padding: 1mm 2.5mm;
+  padding: 0.3mm 1.5mm;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -259,18 +291,18 @@
   padding: 0.4mm 0;
 }
 
-/* Faint horizontal line separating each taboo word from the next. */
+/* Faint horizontal line separating each row of taboo words. */
 .pc__taboo:not(:first-child) {
   border-top: 0.2mm solid rgba(255, 255, 255, 0.3);
 }
 
-/* Each synonym of a taboo word; a faint vertical line separates them. */
-.pc__syn {
-  padding: 0 1.6mm;
+.pc__taboo-word {
+  padding: 0 1.5mm;
 }
 
-.pc__syn:not(:first-child) {
-  border-inline-start: 0.2mm solid rgba(255, 255, 255, 0.45);
+/* Thin vertical divider between words sharing the same row. */
+.pc__taboo-word:not(:first-child) {
+  border-left: 0.2mm solid rgba(255, 255, 255, 0.4);
 }
 
 .pc__sec-inner--empty {

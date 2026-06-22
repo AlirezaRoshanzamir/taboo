@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CARD_COLORS, colorLabel, colorValue } from '../colors.js'
+const DIFFICULTY_RANK = { easy: 0, normal: 1, hard: 2 }
 import './print.css'
 
 const PAGE_PRESETS = {
@@ -17,7 +18,7 @@ function pageDims(size, orientation, customW, customH) {
   return orientation === 'landscape' ? [long, short] : [short, long]
 }
 
-// Choose four starting colors: those present in the collection first, then the
+// Choose four starstarting colors: those present in the collection first, then the
 // rest of the palette to fill up to four roles.
 function initialRoles(cards) {
   const order = CARD_COLORS.map((c) => c.key)
@@ -46,54 +47,95 @@ function initialRoles(cards) {
   return { s1t: picked[0], s1b: picked[1], s2t: picked[2], s2b: picked[3] }
 }
 
-// Shrink the taboo words so they always fit the (roughly half-card) section
-// without touching the divider, scaling down as the word count grows.
-function tabooFontSize(cardH, count) {
+// Cap on how many physical rows the taboo section will use. Beyond this, extra
+// words get packed alongside others on the same row (chip-style) rather than
+// shrinking the type further.
+const MAX_TABOO_ROWS = 6
+
+// Split a list of words into N rows, as evenly as possible. With 8 words and
+// MAX_TABOO_ROWS = 6 the result is sized like [2,2,1,1,1,1].
+function distributeIntoRows(words, maxRows) {
+  const rowCount = Math.min(words.length, maxRows)
+  if (rowCount === 0) return []
+  const rows = []
+  let i = 0
+  for (let r = 0; r < rowCount; r++) {
+    const take = Math.ceil((words.length - i) / (rowCount - r))
+    rows.push(words.slice(i, i + take))
+    i += take
+  }
+  return rows
+}
+
+// Font size is driven by the number of rows we'll actually render, not the
+// number of words — packing keeps rows ≤ MAX_TABOO_ROWS so the type stays legible.
+function tabooFontSize(cardH, rowCount) {
   const baseTfs = Math.max(2.6, cardH * 0.05)
-  if (count <= 0) return baseTfs
+  if (rowCount <= 0) return baseTfs
   const gfs = Math.max(3, cardH * 0.064)
   const sectionH = cardH / 2
-  // Space taken by the guess word block (text + padding + white divider).
   const guessBlock = gfs * 1.3 + cardH * 0.05 + 0.5
-  const taboosPadding = 2 // 1mm top + 1mm bottom
-  // Each row adds ~0.8mm vertical padding plus a 0.2mm divider border.
+  const taboosPadding = 0
   const perRowChrome = 1.0
-  const available = Math.max(0, sectionH - guessBlock - taboosPadding - count * perRowChrome)
-  const perLine = 1.45 // line-height + inter-line gap factor
-  const fit = available / (count * perLine)
+  const available = Math.max(0, sectionH - guessBlock - taboosPadding - rowCount * perRowChrome)
+  const perLine = 1.45
+  const fit = available / (rowCount * perLine)
   return Math.max(2, Math.min(baseTfs, Number(fit.toFixed(2))))
 }
 
-function Section({ card, cardH, maxTaboos, maxSynonyms }) {
+// The card's intrinsic difficulty is its hardest taboo word: a card with any
+// hard word is a hard card, with normals but no hards is normal, and otherwise
+// (only easy words or none at all) it's easy.
+const LEVEL_META = {
+  easy: { label: 'Easy', stars: 1 },
+  normal: { label: 'Normal', stars: 2 },
+  hard: { label: 'Hard', stars: 3 },
+}
+
+function cardLevel(tabooWords) {
+  if (tabooWords.some((t) => t.difficulty === 'hard')) return 'hard'
+  if (tabooWords.some((t) => t.difficulty === 'normal')) return 'normal'
+  return 'easy'
+}
+
+function Section({ card, cardH, difficulty }) {
   if (!card) return <div className="pc__sec-inner pc__sec-inner--empty" />
-  const words =
-    maxTaboos > 0 ? card.tabooWords.slice(0, maxTaboos) : card.tabooWords
+  // Only the words actually shown on this printed side count toward the badge —
+  // a hard card printed at "easy" reads as easy because that's what players see.
+  const visible = card.tabooWords.filter(
+    (t) => DIFFICULTY_RANK[t.difficulty] <= DIFFICULTY_RANK[difficulty],
+  )
+  const words = visible.map((t) => t.word)
+  const rows = distributeIntoRows(words, MAX_TABOO_ROWS)
+  const level = cardLevel(visible)
+  const meta = LEVEL_META[level]
   return (
     <div className="pc__sec-inner">
+      <div className={`pc__badge pc__badge--${level}`}>
+        <span className="pc__badge-label">{meta.label}</span>
+        <span className="pc__badge-stars" aria-label={`${meta.stars} of 3`}>
+          {'★'.repeat(meta.stars)}
+          <span className="pc__badge-stars-dim">
+            {'★'.repeat(3 - meta.stars)}
+          </span>
+        </span>
+      </div>
       <div className="pc__guess" dir="auto">
         {card.guessWord}
       </div>
       <ul
         className="pc__taboos"
-        style={{ '--tfs': tabooFontSize(cardH, words.length) }}
+        style={{ '--tfs': tabooFontSize(cardH, rows.length) }}
       >
-        {words.map((w, i) => {
-          let syns = w
-            .split('|')
-            .map((s) => s.trim())
-            .filter(Boolean)
-          if (!syns.length) syns = [w]
-          if (maxSynonyms > 0) syns = syns.slice(0, maxSynonyms)
-          return (
-            <li className="pc__taboo" dir="auto" key={i}>
-              {syns.map((s, j) => (
-                <span className="pc__syn" key={j}>
-                  {s}
-                </span>
-              ))}
-            </li>
-          )
-        })}
+        {rows.map((rowWords, ri) => (
+          <li className="pc__taboo" key={ri}>
+            {rowWords.map((w, wi) => (
+              <span className="pc__taboo-word" dir="auto" key={wi}>
+                {w}
+              </span>
+            ))}
+          </li>
+        ))}
       </ul>
     </div>
   )
@@ -105,26 +147,15 @@ function PrintCard({
   topColor,
   bottomColor,
   cardH,
-  maxTaboos,
-  maxSynonyms,
+  difficulty,
 }) {
   return (
     <div className="pc">
       <div className="pc__sec" style={{ '--c': colorValue(topColor) }}>
-        <Section
-          card={topCard}
-          cardH={cardH}
-          maxTaboos={maxTaboos}
-          maxSynonyms={maxSynonyms}
-        />
+        <Section card={topCard} cardH={cardH} difficulty={difficulty} />
       </div>
       <div className="pc__sec pc__sec--flip" style={{ '--c': colorValue(bottomColor) }}>
-        <Section
-          card={bottomCard}
-          cardH={cardH}
-          maxTaboos={maxTaboos}
-          maxSynonyms={maxSynonyms}
-        />
+        <Section card={bottomCard} cardH={cardH} difficulty={difficulty} />
       </div>
     </div>
   )
@@ -139,8 +170,7 @@ export default function PrintPanel({ cards }) {
   const [cardH, setCardH] = useState(96)
   const [gap, setGap] = useState(0)
   const [margin, setMargin] = useState(0)
-  const [maxTaboos, setMaxTaboos] = useState(0)
-  const [maxSynonyms, setMaxSynonyms] = useState(0)
+  const [difficulty, setDifficulty] = useState('normal')
   const [mirrorBack, setMirrorBack] = useState(true)
   const [roles, setRoles] = useState(() => initialRoles(cards))
   const [scale, setScale] = useState(0.6)
@@ -329,26 +359,17 @@ export default function PrintPanel({ cards }) {
               />
             </div>
             <div className="pp-field">
-              <label htmlFor="pp-maxtaboos">Max taboo words (0 = all)</label>
-              <input
-                id="pp-maxtaboos"
-                className="pp-input"
-                type="number"
-                min={0}
-                value={maxTaboos}
-                onChange={(e) => setMaxTaboos(Math.max(0, Number(e.target.value)))}
-              />
-            </div>
-            <div className="pp-field">
-              <label htmlFor="pp-maxsyn">Max similar words (0 = all)</label>
-              <input
-                id="pp-maxsyn"
-                className="pp-input"
-                type="number"
-                min={0}
-                value={maxSynonyms}
-                onChange={(e) => setMaxSynonyms(Math.max(0, Number(e.target.value)))}
-              />
+              <label htmlFor="pp-difficulty">Difficulty</label>
+              <select
+                id="pp-difficulty"
+                className="pp-select"
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+              >
+                <option value="easy">Easy</option>
+                <option value="normal">Normal</option>
+                <option value="hard">Hard</option>
+              </select>
             </div>
           </div>
         </div>
@@ -437,8 +458,7 @@ export default function PrintPanel({ cards }) {
                       topColor={roles.s1t}
                       bottomColor={roles.s1b}
                       cardH={cardH}
-                      maxTaboos={maxTaboos}
-                      maxSynonyms={maxSynonyms}
+                      difficulty={difficulty}
                     />
                   ) : (
                     <PrintCard
@@ -448,8 +468,7 @@ export default function PrintPanel({ cards }) {
                       topColor={roles.s2t}
                       bottomColor={roles.s2b}
                       cardH={cardH}
-                      maxTaboos={maxTaboos}
-                      maxSynonyms={maxSynonyms}
+                      difficulty={difficulty}
                     />
                   ),
                 )}
